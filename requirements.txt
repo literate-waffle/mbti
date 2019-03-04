@@ -1,3 +1,4 @@
+unidecode
 jupyter
 jupyterlab
 numpy
