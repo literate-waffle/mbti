@@ -3,4 +3,5 @@ jupyterlab
 numpy
 matplotlib
 pandas
+scikit-learn
 tweepy
