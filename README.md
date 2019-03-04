@@ -12,7 +12,7 @@ pip install -r requirements.txt
 
 This section only applies if you plan to rebuild the tweet database.
 
-First, you'll need to get a [Twitter Developer account] in order to get a consumer key and an access token.
+First, you'll need to get a [Twitter Developer account](https://developer.twitter.com) in order to get a consumer key and an access token.
 
 Then, create a `.env` file in the project root with the following variables:
 
