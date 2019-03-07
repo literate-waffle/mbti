@@ -4,3 +4,7 @@ numpy
 matplotlib
 pandas
 tweepy
+pandas
+tornado==5.1.1
+seaborn
+nltk
