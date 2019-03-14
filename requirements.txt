@@ -1,8 +1,10 @@
+unidecode
 jupyter
 jupyterlab
 numpy
 matplotlib
 pandas
+scikit-learn
 tweepy
 pandas
 tornado==5.1.1
