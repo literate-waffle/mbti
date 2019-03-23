@@ -10,3 +10,4 @@ pandas
 tornado==5.1.1
 seaborn
 nltk
+python-dotenv
