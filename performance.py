@@ -26,7 +26,7 @@ def plot_confusion_matrix(y_true, y_pred, classes,
     if classes.dtype == int:
         classes = classes[labels]
     else:
-        indices = [i for i, label in enumerate(labels) if label in classes]
+        indices = [i for i, label in enumerate(classes) if label in labels]
         classes = classes[indices]
 
     if normalize:
