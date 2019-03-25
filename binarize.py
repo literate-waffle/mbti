@@ -15,7 +15,17 @@ from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.naive_bayes import MultinomialNB
 
 """
-ROC curve on multi-class data => binarize the output
+https://scikit-learn.org/stable/auto_examples/model_selection/plot_roc.html
+ROC curve and area on multi-class data => binarize the output
+
+
+https://stats.stackexchange.com/questions/132777/what-does-auc-stand-for-and-what-is-it 
+AUC = Area Under the Curve.
+AUROC = Area Under the Receiver Operating Characteristic curve.
+
+The AUROC is between 0 and 1, and AUROC = 1 means the prediction model is perfect. In fact, further away the AUROC is
+from 0.5, the better: if AUROC < 0.5, then you just need to invert the decision your model is making. As a result, if 
+AUROC = 0, that's good news because you just need to invert your model's output to obtain a perfect model.
 """
 
 data = pd.read_csv("./data/mbti_1.csv", header=0)
