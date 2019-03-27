@@ -3,4 +3,7 @@ jupyterlab
 numpy
 matplotlib
 tweepy
-dotenv
+python-dotenv
+pymongo
+dnspython
+click
