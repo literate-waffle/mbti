@@ -32,10 +32,11 @@ if __name__ == "__main__":
     X = data['posts']
     y = data['type']
     class_names = y.unique()
+    print(class_names.shape[0])
 
     # Binarize the output
-    y = binarize_output(y)
-    n_classes = y.shape[1]
+    # y = binarize_output(y)
+    # n_classes = y.shape[1]
 
     # shuffle and split training and test sets
     X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=.4,
@@ -46,4 +47,4 @@ if __name__ == "__main__":
                          ('clf', MultinomialNB()),
                          ])
 
-    plot_roc_curve(text_clf, class_names, n_classes, X_train, X_test, y_train, y_test)
+    plot_roc_curve(text_clf, class_names, X_train, X_test, y_train, y_test)
