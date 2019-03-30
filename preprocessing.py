@@ -2,10 +2,13 @@ import re
 from unidecode import unidecode
 
 
+REPEAT_REGEX = re.compile(r"((.)\2*)")
+
+
 def remove_repeated_characters(expr):
     # limit number of repeated letters to 3. For example loooool --> loool
     string_not_repeated = ""
-    for item in re.findall(r"((.)\2*)", expr):
+    for item in REPEAT_REGEX.findall(expr):
         if len(item[0]) <= 3:
             string_not_repeated += item[0]
         else:
@@ -13,35 +16,48 @@ def remove_repeated_characters(expr):
     return string_not_repeated
 
 
+CAMEL_CASE_REGEX = re.compile(
+    r".+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)"
+)
+
+
 def camel_case_split(expr):
-    matches = re.finditer('.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)', expr)
+    # HelloWorld -> Hello World
+    matches = CAMEL_CASE_REGEX.finditer(expr)
     return " ".join([m.group(0) for m in matches])
+
+
+NOT_LETTERS = re.compile(r"[^a-zA-Z]")
+MANY_SPACES = re.compile(r" +")
+URL = re.compile(r"http\S+", flags=re.MULTILINE)
+TWITTER_HANDLE = re.compile(r"@\S+", flags=re.MULTILINE)
+POSTS_SEPARATOR = re.compile(r"\|\|\|", flags=re.MULTILINE)
+
+HASHTAG = re.compile(r"#(\S+)")
+
+
+def repl_hashtag(m):
+    content = m.group(1)
+    return camel_case_split(content)
 
 
 def format_text(text):
     try:
-        text = unidecode(re.sub(r'\|\|\|', r' ', text, flags=re.MULTILINE))
-        text = unidecode(re.sub(r'http\S+', r'link', text, flags=re.MULTILINE))
-        text = unidecode(re.sub(r'@\S+', '', text, flags=re.MULTILINE))
+        # Unfold posts.
+        text = unidecode(POSTS_SEPARATOR.sub(" ", text))
+        # Remove URLs.
+        text = unidecode(URL.sub("", text))
+        # Remove Twitter handles (usernames).
+        text = unidecode(TWITTER_HANDLE.sub("", text))
     except Exception:
         print(text)
         raise
-    new_text = []
 
-    for word in re.split(r"[' ]", text):
-        # remove numbers longer than 4 digits
-        if len(word) < 5 or not word.isdigit():
-            if word.startswith("#"):
-                # add lowered hashtags to have them 2 times (alexandrebenalla and Alexandre Benalla)
-                # new_text.append(word[1:].lower())
-                new_text.append(camel_case_split(word[1:]))
-            else:
-                new_text.append(word)
-    temp = " ".join(new_text)
-    temp = re.sub("[^a-zA-Z]", " ", temp)  # only keep words
-    temp = re.sub(' +', ' ', temp).lower()  # remove big spaces
-    temp = remove_repeated_characters(temp)
-    return temp
+    text = HASHTAG.sub(repl_hashtag, text)
+    text = NOT_LETTERS.sub(" ", text)  # only keep words
+    text = MANY_SPACES.sub(" ", text).lower()  # remove big spaces
+    text = remove_repeated_characters(text)
+    return text
 
 
 if __name__ == "__main__":
