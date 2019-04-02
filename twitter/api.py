@@ -15,3 +15,9 @@ def create_api():
         os.getenv("TWITTER_ACCESS_TOKEN"), os.getenv("TWITTER_TOKEN_SECRET")
     )
     return tweepy.API(auth)
+
+
+def get_default_api():
+    if getattr(get_default_api, "api", None) is None:
+        get_default_api.api = create_api()
+    return get_default_api.api
