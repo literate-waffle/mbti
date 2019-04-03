@@ -73,13 +73,51 @@ def downsample_majority(df):
     return df_downsampled
 
 
+def midsample(df):
+    """
+    We are trying a new resampling method : mid-sampling, where we up-sample the minority classes and down-sample the
+    majority classes to a middle number of values.
+    """
+    class_names = df.type.unique()
+    n_classes = len(class_names)
+    type_count = df.type.value_counts()
+
+    # print(type_count)
+
+    middle_class = type_count.index[n_classes/2 - 1]
+    df_other = {}
+
+    for label in class_names:
+        if label == middle_class:
+            df_middle = df[df.type == label]
+        else:
+            df_other[label] = df[df.type == label]
+
+    df_midsampled = df_middle.copy()
+    for label in class_names:
+        if label != middle_class:
+            df_other_midsampled = resample(df_other[label],
+                                           replace=True,  # sample with replacement
+                                           n_samples=df_middle.shape[0],  # to match middle class
+                                           random_state=123)  # reproducible results
+            # Combine middle class with midsampled classes
+            df_midsampled = pd.concat([df_midsampled, df_other_midsampled])
+
+    # Display new class counts
+    # print(df_midsampled.type.value_counts())
+    return df_midsampled
+
+
 if __name__ == "__main__":
 
     data = pd.read_csv("./data/mbti_1.csv", header=0)
-    print(data[data['type'] == 'ESTJ'].sort_values(by=['posts']))
+    # print(data[data['type'] == 'ESTJ'].sort_values(by=['posts']))
 
-    data_upsampled = upsample_minority(data)
+    # data_upsampled = upsample_minority(data)
     # data_downsampled = downsample_majority(data)
 
     # print(data_upsampled.type.value_counts())
-    print(data_upsampled[data_upsampled['type'] == 'ESTJ'].sort_values(by=['posts']))
+    # print(data_upsampled[data_upsampled['type'] == 'ESTJ'].sort_values(by=['posts']))
+
+    data_midsampled = midsample(data)
+    print('Number of rows: {}'.format(data_midsampled.shape[0]))
