@@ -1,5 +1,4 @@
 import pandas as pd
-from parser import parse_data
 from sklearn.utils import resample
 
 
@@ -7,11 +6,12 @@ def upsample_minority(df):
     """
     Up-sampling is the process of randomly duplicating observations from the minority class in order to reinforce its
     signal.
+    The resample method simply duplicates rows of the minority class to match the number of majority class rows.
     """
     class_names = df.type.unique()
     type_count = df.type.value_counts()
 
-    print(type_count)
+    # print(type_count)
 
     # Separate majority and minority classes
     majority_class = type_count.idxmax()
@@ -76,6 +76,10 @@ def downsample_majority(df):
 if __name__ == "__main__":
 
     data = pd.read_csv("./data/mbti_1.csv", header=0)
-    data_parsed = parse_data(data)
-    data_upsampled = upsample_minority(data_parsed)
-    data_downsampled = downsample_majority(data_parsed)
+    print(data[data['type'] == 'ESTJ'].sort_values(by=['posts']))
+
+    data_upsampled = upsample_minority(data)
+    # data_downsampled = downsample_majority(data)
+
+    # print(data_upsampled.type.value_counts())
+    print(data_upsampled[data_upsampled['type'] == 'ESTJ'].sort_values(by=['posts']))

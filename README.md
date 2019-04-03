@@ -1,4 +1,4 @@
-# Maple
+# MBTI
 
 MBTI prediction on Twitter.
 
