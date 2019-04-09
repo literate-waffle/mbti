@@ -11,8 +11,6 @@ def upsample_minority(df):
     class_names = df.type.unique()
     type_count = df.type.value_counts()
 
-    print(type_count)
-
     # Separate majority and minority classes
     majority_class = type_count.idxmax()
     df_minorities = {}
