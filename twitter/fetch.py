@@ -3,6 +3,7 @@ import itertools
 from typing import List
 
 import tweepy
+from unidecode import unidecode
 
 from .api import get_default_api
 from .constants import MBTI_TYPES
@@ -13,19 +14,10 @@ logger = get_logger(__name__)
 
 
 def build_status(status: tweepy.Status) -> dict:
-    return dict(
-        id=status.id,
-        created_at=str(status.created_at),
-        name=status.user.name,
-        screen_name=status.user.screen_name,
-        text=_get_text(status),
-    )
-
-
-def _get_text(status: tweepy.Status) -> dict:
     text = None
     truncated = status.truncated
     error = False
+
     if not truncated:
         text = status.text
     else:
@@ -34,7 +26,16 @@ def _get_text(status: tweepy.Status) -> dict:
         except KeyError:
             text = status.text
             error = True
-    return {"value": text, "truncated": truncated, "error": error}
+
+    # Décodage des caractères spéciaux unicode.
+    text = unidecode(text)
+
+    return dict(
+        text=text,
+        error=error,
+        name=status.user.name,
+        screen_name=status.user.screen_name,
+    )
 
 
 def fetch(
@@ -58,7 +59,10 @@ def fetch(
     )
 
     for status in api.user_timeline(screen_name, count=count):
-        yield build_status(status)
+        stat = build_status(status)
+        if stat.pop("error", False):
+            continue
+        yield stat
 
 
 def from_csv(filename: str, limit: int = None, **kwargs) -> List[dict]:

@@ -18,19 +18,7 @@ pip install -r requirements.txt
 touch .env
 ```
 
-### Connecting to Mongo Atlas
-
-Tweets are stored in a MongoDB database via [Mongo Atlas](https://www.mongodb.com/cloud/atlas). To access the database, you'll need to have add the following environment variables:
-
-```dotenv
-MONGO_USER="..."
-MONGO_PASSWORD="..."
-MONGO_CLUSTER="..."
-```
-
-### Building the tweets database
-
-This section only applies if you plan to rebuild the tweets database (MongoDB).
+### Building the Tweets database
 
 First, you'll need to get a [Twitter Developer account](https://developer.twitter.com) in order to get a consumer key and an access token.
 
@@ -43,10 +31,12 @@ TWITTER_ACCESS_TOKEN="..."
 TWITTER_TOKEN_SECRET="..."
 ```
 
-Place the tweets CSV (e.g. `tweets.csv`) under the `data/` directory. **Make sure to remove the CSV header if there is one.**
+Place the Tweets CSV file (e.g. `tweets.csv`) under the `data/` directory. **Make sure to remove the CSV header if there is one.**
 
 Then run the following command:
 
 ```bash
-python -m twitter data/tweets.csv
+python -m twitter data/tweets.csv data/tweets.json
 ```
+
+The resulting `tweets.json` file contains an array of Tweets with the associated MBTI type.

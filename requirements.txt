@@ -9,6 +9,6 @@ tweepy
 tornado==5.1.1
 seaborn
 nltk
-pymongo
 dnspython
 click
+python-dotenv
