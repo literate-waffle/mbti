@@ -70,6 +70,41 @@ def downsample_majority(df):
     # print(df_downsampled.type.value_counts())
     return df_downsampled
 
+def midsample(df):
+    """
+    We are trying a new resampling method : mid-sampling, where we up-sample the minority classes and down-sample the
+    majority classes to a middle number of values.
+    """
+    class_names = df.type.unique()
+    n_classes = len(class_names)
+    type_count = df.type.value_counts()
+
+    # print(type_count)
+
+    middle_class = type_count.index[n_classes/2 - 1]
+    df_other = {}
+
+    for label in class_names:
+        if label == middle_class:
+            df_middle = df[df.type == label]
+        else:
+            df_other[label] = df[df.type == label]
+
+    df_midsampled = df_middle.copy()
+    for label in class_names:
+        if label != middle_class:
+            df_other_midsampled = resample(df_other[label],
+                                           replace=True,  # sample with replacement
+                                           n_samples=df_middle.shape[0],  # to match middle class
+                                           random_state=123)  # reproducible results
+            # Combine middle class with midsampled classes
+            df_midsampled = pd.concat([df_midsampled, df_other_midsampled])
+
+    # Display new class counts
+    # print(df_midsampled.type.value_counts())
+    return df_midsampled
+
+
 
 if __name__ == "__main__":
 

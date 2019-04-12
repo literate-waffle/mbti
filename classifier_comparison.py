@@ -24,7 +24,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 # from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score, confusion_matrix
 # from config import current_file
-
+from resampling import upsample_minority, downsample_majority, midsample
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -35,10 +35,36 @@ seed = 7
 NUM_CLASSES = 16
 
 
-def compare_classifiers():
+def evaluate(y, predicted_y):
+    """
+    Calculate metrics of the classifier. Since it is a multiclass model, found the formulas on
+    https://stats.stackexchange.com/questions/51296/how-do-you-calculate-precision-and-recall-for-multiclass-classification-using-co
+    then calculate the average of all precisions and recalls.
+    :param y:
+    :param predicted_y:
+    :return: precision, recall and f1_score of classifier
+    """
+    # acc = accuracy_score(y, predicted_y)
+    cm = pd.DataFrame(confusion_matrix(y, predicted_y))
+    precision = np.int32(0)
+    for mbti in range(NUM_CLASSES):
+        try:
+            precision += np.int32(cm[mbti][mbti]) / np.sum([cm[j][mbti] for j in range(NUM_CLASSES)])
+        except RuntimeWarning:
+            precision += 0
+    precision = precision / NUM_CLASSES
+    recall = np.int32(0)
+    for mbti in range(NUM_CLASSES):
+        try:
+            recall += np.int32(cm[mbti][mbti]) / np.sum([cm[mbti][j] for j in range(NUM_CLASSES)])
+        except RuntimeWarning:
+            recall += 0
+    recall = recall / NUM_CLASSES
+    f_score = 2 * precision * recall / (precision + recall) if precision > 0 and recall > 0 else 0
+    return precision, recall, f_score
 
-    # Categorized data frame
-    data = pd.read_csv("./data/mbti_1.csv", header=0)
+
+def compare_classifiers(dict_classifiers, data):
 
     vectorizer = CountVectorizer()
 
@@ -48,16 +74,7 @@ def compare_classifiers():
     def vectorize_test(test_x):
         return vectorizer.transform(test_x.apply(format_text))
 
-    k_value = 7
-    dict_classifiers = {
-        "Logistic Regression": LogisticRegression(),
-        "KNN": KNeighborsClassifier(n_neighbors=k_value, weights='distance', algorithm='auto'),
-        "Linear SVM": SGDClassifier(max_iter=1000, tol=1e-3),
-        "Random Forest": RandomForestClassifier(),
-        "Naive Bayes": MultinomialNB(),
-        # "LDA": LinearDiscriminantAnalysis(),
-        # "CART": DecisionTreeClassifier()
-    }
+
     dict_models = {}
 
     HEADERS = data.columns.values.tolist()
@@ -71,34 +88,6 @@ def compare_classifiers():
             y,
             train_size=train_percentage)
         return train_x, test_x, train_y, test_y
-
-    def evaluate(y, predicted_y):
-        """
-        Calculate metrics of the classifier. Since it is a multiclass model, found the formulas on
-        https://stats.stackexchange.com/questions/51296/how-do-you-calculate-precision-and-recall-for-multiclass-classification-using-co
-        then calculate the average of all precisions and recalls.
-        :param y:
-        :param predicted_y:
-        :return: precision, recall and f1_score of classifier
-        """
-        # acc = accuracy_score(y, predicted_y)
-        cm = pd.DataFrame(confusion_matrix(y, predicted_y))
-        precision = np.int32(0)
-        for mbti in range(NUM_CLASSES):
-            try:
-                precision += np.int32(cm[mbti][mbti]) / np.sum([cm[j][mbti] for j in range(NUM_CLASSES)])
-            except RuntimeWarning:
-                precision += 0
-        precision = precision / NUM_CLASSES
-        recall = np.int32(0)
-        for mbti in range(NUM_CLASSES):
-            try:
-                recall += np.int32(cm[mbti][mbti]) / np.sum([cm[mbti][j] for j in range(NUM_CLASSES)])
-            except RuntimeWarning:
-                recall += 0
-        recall = recall / NUM_CLASSES
-        f_score = 2 * precision * recall / (precision + recall) if precision > 0 and recall > 0 else 0
-        return precision, recall, f_score
 
     def classify(classifier_name, classifier, train_x, test_x, train_y, test_y, verbose=True):
         t_start = time.time()
@@ -162,8 +151,8 @@ def compare_classifiers():
         results = []
         names = []
         # https://scikit-learn.org/stable/modules/model_evaluation.html
-        scoring = 'accuracy'
-        # scoring = 'f1_weighted'
+        # scoring = 'accuracy'
+        scoring = 'f1_weighted'
         train_x, test_x, train_y, test_y = split_dataset(dataset['posts'], dataset['type'], 0.7)
         print(scoring)
         for name in dict_classifiers.keys():
@@ -198,4 +187,24 @@ def compare_classifiers():
 
 
 if __name__ == "__main__":
-    compare_classifiers()
+
+    # Categorized data frame
+    data = pd.read_csv("./data/mbti_1.csv", header=0)
+
+    # Choose sampling
+    # data = upsample_minority(data)
+    # data = downsample_majority(data)
+    data = midsample(data)
+
+    k_value = 7
+    # Here choose classifiers to compare
+    dict_classifiers = {
+        "Logistic Regression": LogisticRegression(),
+        "KNN": KNeighborsClassifier(n_neighbors=k_value, weights='distance', algorithm='auto'),
+        "Linear SVM": SGDClassifier(max_iter=1000, tol=1e-3),
+        "Random Forest100": RandomForestClassifier(n_estimators=100),
+        "Random Forest50": RandomForestClassifier(n_estimators=50),
+        "Naive Bayes": MultinomialNB()
+    }
+
+    compare_classifiers(dict_classifiers, data)
