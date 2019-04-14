@@ -1,5 +1,9 @@
 import pandas as pd
 
+"""
+Pas utilisé : ce fichier nous a permis de tester la séparation des posts d'une même personne dans les données Kaggle
+afin d'avoir un post par ligne.
+"""
 
 def parse_posts(posts):
     return posts.split("|||")
