@@ -70,6 +70,7 @@ def downsample_majority(df):
     # print(df_downsampled.type.value_counts())
     return df_downsampled
 
+
 def midsample(df):
     """
     We are trying a new resampling method : mid-sampling, where we up-sample the minority classes and down-sample the
@@ -105,9 +106,7 @@ def midsample(df):
     return df_midsampled
 
 
-
 if __name__ == "__main__":
-
     data = pd.read_csv("./data/mbti_1.csv", header=0)
     data_parsed = parse_data(data)
     data_upsampled = upsample_minority(data_parsed)

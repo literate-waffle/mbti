@@ -21,6 +21,3 @@ def translate_personality(row):
         'JP': binary_axis[mbti_type[3]]
     })
 
-
-if __name__ == "__main__":
-    print('MBTI')
